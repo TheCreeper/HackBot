@@ -26,13 +26,12 @@ import (
 
 // Errors
 var (
-	ErrMimeType         = errors.New("MIME type not supported")
-	ErrMimeTypeDisabled = errors.New("MIME type is supported but disabled")
-	ErrInvalidChar      = errors.New("Crawler result contains invalid characters")
+	ErrMimeType    = errors.New("MIME type not supported")
+	ErrInvalidChar = errors.New("Crawler result contains invalid characters")
 )
 
 // Default useragent
-const UserAgentDef = "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)"
+const UserAgent = "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)"
 
 // Some regular expressions
 var (
@@ -85,15 +84,21 @@ func (c *Client) dial(network, addr string) (net.Conn, error) {
 
 		DualStack: true,
 	}
-
 	return dialer.Dial(network, addr)
 }
 
-func (c *Client) crawl(urlF string) (resp *http.Response, err error) {
+// Store some information about the page
+type CrawlResult struct {
+	Title string `xml:"head>title"` // Title of the page
+	//Desc string 'xml: "head>meta"' // Description of the page
+	Size int // Size of webpage
+}
+
+func (c *Client) Crawl(urlF string) (r *CrawlResult, err error) {
 
 	httpClient := &http.Client{
 
-		Transport: &http.Transport{Dial: c.dial}
+		Transport: &http.Transport{Dial: c.dial},
 	}
 
 	req, err := http.NewRequest("GET", urlF, nil)
@@ -114,18 +119,6 @@ func (c *Client) crawl(urlF string) (resp *http.Response, err error) {
 	}
 	defer resp.Body.Close()
 
-	return
-}
-
-// Store some information about the page
-type CrawlResult struct {
-	Title string `xml:"head>title"` // Title of the page
-	//Desc string 'xml: "head>meta"' // Description of the page
-	Size int // Size of webpage
-}
-
-func (c *Client) Crawl(urlF string) (r *CrawlResult, err error) {
-
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 
@@ -133,13 +126,10 @@ func (c *Client) Crawl(urlF string) (r *CrawlResult, err error) {
 	}
 
 	mime := http.DetectContentType(body)
-	if !(StringInMap(AllowedMimeTypes, mime)) {
+	_, ok := AllowedMimeTypes[mime]
+	if !(ok) {
 
 		return nil, ErrMimeType
-	}
-	if !(MimeEnabled(AllowedMimeTypes, mime)) {
-
-		return nil, ErrMimeTypeDisabled
 	}
 
 	autoclose := []string{"script", "style", "meta"}

@@ -7,7 +7,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/TheCreeper/hackbot/ircutil"
+	"github.com/TheCreeper/HackBot/ircutil"
 )
 
 func (cfg *ClientConfig) LaunchClient(wg *sync.WaitGroup, srv Server) {

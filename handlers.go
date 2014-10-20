@@ -6,10 +6,10 @@ import (
 	"net"
 	"strings"
 
-	"github.com/TheCreeper/hackbot/ircutil"
-	"github.com/TheCreeper/hackbot/responses"
-	"github.com/TheCreeper/hackbot/searchquery/crawler"
-	"github.com/TheCreeper/hackbot/searchquery/ddg"
+	"github.com/TheCreeper/HackBot/ircutil"
+	"github.com/TheCreeper/HackBot/responses"
+	"github.com/TheCreeper/HackBot/searchquery/crawler"
+	"github.com/TheCreeper/HackBot/searchquery/ddg"
 	"github.com/sorcix/irc"
 )
 
@@ -91,8 +91,8 @@ func (h *HandlerFuncs) HandlePirvMsg(m *irc.Message) (err error) {
 
 		q := &ddg.Client{
 
-			Dial:      h.Dial,
-			NoHTML:    true,
+			Dial:   h.Dial,
+			NoHTML: true,
 		}
 		_, text, err := q.FeelingLucky(m.Trailing)
 		if err != nil {
@@ -121,7 +121,7 @@ func (h *HandlerFuncs) HandlePirvMsg(m *irc.Message) (err error) {
 		}
 
 		c := &crawler.Client{
-			Dial:      h.Dial
+			Dial: h.Dial,
 		}
 		r, err := c.Crawl(crawler.ExtractUrl(m.Trailing))
 		if err != nil {

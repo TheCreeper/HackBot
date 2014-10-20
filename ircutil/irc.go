@@ -163,13 +163,7 @@ func (cc *ClientConn) SendRaw(message string) (err error) {
 		return ErrParseMsg
 	}
 
-	err = cc.Conn.Encode(m)
-	if err != nil {
-
-		return
-	}
-
-	return
+	return cc.Conn.Encode(m)
 }
 
 func (cc *ClientConn) PingPong(m *irc.Message) error {
